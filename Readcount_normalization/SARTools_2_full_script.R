@@ -44,23 +44,23 @@ loadTargetFile <- function(targetFile, varInt, condRef, batch){
   return(target)
 }
 
-workDir <- "C:\\Users\\teres\\OneDrive - Universidade do Minho\\ST_TRN_data\\readcounts\\2_second_normalization"      # working directory for the R session
+workDir <- ""                                                     # working directory for the R session
 setwd(workDir)
 
-projectName <- "Readcount normalization for all datasets"                         # name of the project
-author <- "Teresa Coimbra"                                # author of the statistical analysis/report
+projectName <- "Readcount normalization for all datasets"         # name of the project
+author <- "Teresa Coimbra"                                        # author of the statistical analysis/report
 
 
-targetFile <- "target_file.txt"                           # path to the design/target file
+targetFile <- "target_file.txt"                                   # path to the design/target file
 
-rawDir <- "C:\\Users\\teres\\OneDrive - Universidade do Minho\\ST_TRN_data\\readcounts\\2_second_normalization"                                  # path to the directory containing raw counts files
-featuresToRemove <- c("alignment_not_unique",        # names of the features to be removed
-                      "ambiguous", "no_feature",     # (specific HTSeq-count information and rRNA for example)
+rawDir <- ""                                                      # path to the directory containing raw counts files
+featuresToRemove <- c("alignment_not_unique",                     # names of the features to be removed
+                      "ambiguous", "no_feature",                  # (specific HTSeq-count information and rRNA for example)
                       "not_aligned", "too_low_aQual")
 
-varInt <- "detail"                                    # factor of interest
-condRef <-  "SRR5CD2"                                 # reference biological condition
-batch <- NULL                                     # blocking factor: NULL (default) or "batch" for example
+varInt <- "detail"                                                # factor of interest
+condRef <-  "SRR5CD2"                                             # reference biological condition
+batch <- NULL                                                     # blocking factor: NULL (default) or "batch" for example
 
 fitType <- "parametric"                              # mean-variance relationship: "parametric" (default) or "local"
 cooksCutoff <- TRUE                                  # TRUE/FALSE to perform the outliers detection (default is TRUE)
