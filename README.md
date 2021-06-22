@@ -2,4 +2,4 @@
 Repository with the supplementary material developed in the context of the project: Methods for inferring *Streptococcus thermophilus* Transcriptional Regulatory Network. 
 
 - Data_download: contains the scripts used to download datasets into the server. 
-
+- RNA_seq_data_processing: processing the RNA-seq data obtained, assembly using Bowtie2, generating assembly statistics with samtools flagstat, and counting the mapped reads using HTSeq-count.
