@@ -1,0 +1,12 @@
+curl -O ftp.sra.ebi.ac.uk/vol1/fastq/ERR458/001/ERR4587991/ERR4587991.fastq.gz
+curl -O ftp.sra.ebi.ac.uk/vol1/fastq/ERR458/002/ERR4587992/ERR4587992.fastq.gz
+curl -O ftp.sra.ebi.ac.uk/vol1/fastq/ERR458/003/ERR4587993/ERR4587993.fastq.gz
+curl -O ftp.sra.ebi.ac.uk/vol1/fastq/ERR458/004/ERR4587994/ERR4587994.fastq.gz
+curl -O ftp.sra.ebi.ac.uk/vol1/fastq/ERR458/005/ERR4587995/ERR4587995.fastq.gz
+curl -O ftp.sra.ebi.ac.uk/vol1/fastq/ERR458/006/ERR4587996/ERR4587996.fastq.gz
+curl -O ftp.sra.ebi.ac.uk/vol1/fastq/ERR458/007/ERR4587997/ERR4587997.fastq.gz
+curl -O ftp.sra.ebi.ac.uk/vol1/fastq/ERR458/008/ERR4587998/ERR4587998.fastq.gz
+curl -O ftp.sra.ebi.ac.uk/vol1/fastq/ERR458/009/ERR4587999/ERR4587999.fastq.gz
+curl -O ftp.sra.ebi.ac.uk/vol1/fastq/ERR458/000/ERR4588000/ERR4588000.fastq.gz
+curl -O ftp.sra.ebi.ac.uk/vol1/fastq/ERR458/001/ERR4588001/ERR4588001.fastq.gz
+curl -O	ftp.sra.ebi.ac.uk/vol1/fastq/ERR458/002/ERR4588002/ERR4588002.fastq.gz
