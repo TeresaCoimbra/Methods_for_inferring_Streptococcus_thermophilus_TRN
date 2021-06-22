@@ -1,1 +1,1 @@
-
+All of the datasets were obtained using the scripts here presented, with the exception of the dataset STCH. 
