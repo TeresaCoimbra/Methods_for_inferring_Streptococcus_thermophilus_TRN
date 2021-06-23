@@ -1,0 +1,196 @@
+---
+title: "Initial analysis"
+author: "Teresa Coimbra"
+output:
+  html_document:
+    df_print: paged
+  html_notebook: default
+  pdf_document: default
+  word_document: default
+---
+
+```{r, include = FALSE}
+library(ggplot2)
+library(edgeR)
+library(limma)
+library(readxl)
+library(Glimma)
+library(gplots)
+library(RColorBrewer)
+library(SARTools)
+library(genefilter)
+library(ggdendro)
+library(PCAtools)
+library(ggfortify)
+library(dplyr)
+library("pheatmap")
+library(heatmap3)
+library(ica)
+```
+
+
+
+```{r import, include=FALSE}
+setwd("C:\\Users\\teres\\OneDrive - Universidade do Minho\\ST_TRN_data\\1_analysis\\")
+data <- read.csv("normalized_df.csv", row.names=1)
+meta_data <- read.csv("fixed_metadata.csv", row.names=1)
+```
+
+Dimension of the data: 1726 rows and 108 columns.
+```{r}
+dim(data)
+```
+
+The dataset columns are divided the following way:
+- the non normalized readcounts: columns 1 to 40;
+- the normalized readcounts ordered by adjusted p-values: columns 41 to 80;
+- results of the statistical tests performed: columns 81 to 108. 
+```{r, include = FALSE}
+colnames(data)[1:40]
+colnames(data)[41:80]
+colnames(data)[81:108]
+```
+
+```{r}
+head(data)
+head(meta_data)
+```
+
+
+On the data file the columns correspond to run accessions and the rows to the locus tags. All the columns have a corresponding row in the metadata file. 
+```{r}
+all.equal(colnames(data),rownames(meta_data))
+```
+
+
+
+# Hierarquical clustering
+
+Datasets are organized into clusters
+```{r}
+df_t = t(data)
+distxy <- dist(df_t, method = "euclidean")
+hc = hclust(distxy,method='average')
+ggdendrogram(hc, theme_dendro = TRUE)+
+  ggtitle("Hierarquical Clustering - Euclidean distance")
+```
+
+
+Creating an ExpressionSet object with the normalized expression data and metadata: 
+```{r}
+phenoData <- new("AnnotatedDataFrame",data=meta_data)
+DF = ExpressionSet(assayData=as.matrix(data), phenoData=phenoData)
+```
+
+
+### PCA
+
+```{r pca}
+p <- pca(data, metadata = meta_data, removeVar = 0.1)
+```
+
+Using the elbow point method, the number of principal components to retain is 6. 
+```{r}
+elbow <- findElbowPoint(p$variance)
+elbow
+```
+By looking at the principal components that contribute to 90% of the explained variation, the number of PCs to retain is 4:
+```{r}
+which(cumsum(p$variance) > 90)[1]
+```
+```{r}
+pairsplot(p,
+    components = getComponents(p, c(1,2,3,4)),
+    triangle = FALSE,
+    hline = 0, vline = 0,
+    pointSize = 0.8,
+    gridlines.major = FALSE, gridlines.minor = FALSE,
+    colby = 'growth_phase',
+    title = 'Pairs plot', titleLabSize = 22,
+    axisLabSize = 14, plotaxes = TRUE)
+```
+
+```{r, include = FALSE}
+screeplot(p)
+```
+
+```{r}
+biplot(p,
+    colby = 'environmental_cond',
+    colLegendTitle = "Environmental condition",
+    legendPosition = 'right',
+    title = 'PCA plot coloured by environmental condition',
+    lab = NULL)
+```
+
+
+```{r}
+biplot(p,
+    colby = 'medium',
+    colLegendTitle = "Medium",
+    legendPosition = 'right', 
+    title = 'PCA plot coloured by growth medium', 
+    lab = NULL)
+```
+
+```{r}
+biplot(p,
+    colby = 'genetic_cond',
+    colLegendTitle = 'Genetic condition',
+    legendPosition = 'right', 
+    title = 'PCA plot coloured by genetic condition', 
+    lab = NULL)
+```
+
+```{r}
+biplot(p,
+    colby = 'growth_phase',
+    legendPosition = 'right', 
+    title = 'PCA plot coloured by growth phase', 
+    colLegendTitle = 'Growth phase', 
+    lab = NULL)
+```
+```{r}
+biplot(p,
+    colby = 'strain',
+    legendPosition = 'right', 
+    title = 'PCA plot coloured by strain', 
+    colLegendTitle = 'S.thermophilus strain', 
+    lab = NULL)
+```
+
+```{r}
+df1 = exprs(DF)
+df1 = df1[!(apply(df1, 1, function(y) any(y == 0))),]
+coloring <- colorRampPalette(brewer.pal(n=8, "RdBu"))(25)
+```
+
+Predominance of a negative correlation between samples and genes. 
+```{r}
+heatmap3(df1, col=coloring, scale = "row", main = "Heatmap")
+```
+
+```{r}
+s_df = scale(df1)
+heatmap3(s_df, col=coloring, scale = "row", main = "Heatmap after scale")
+```
+
+
+The heatmap bellow shows the first 25 genes across the all the samples of the dataset PRJEB40341.
+The first gene with the locus tag "STER_RS00070" is the ftsH gene which codes for an ATP-dependent zinc metalloprotease called FtsH. In this dataset, all samples have suffered a knockout on the comR gene. This is a copper outer membrane regulator. There can be a relation regarding these genes and their functions, which could be interesting to be explored. 
+```{r}
+pheatmap(s_df[1:25,1:12], angle_col = 45, main='Heatmap of PRJEB40341 samples for the first 25 genes')
+```
+
+
+### K-means
+```{r}
+set.seed(12345)
+ofs = c()
+for (k in 2:10) ofs[k] = sum(kmeans(df_t, centers=k)$withinss)
+plot(2:10, ofs[2:10], type="b", xlab="Number of initial clusters, k", ylab="WSS",main='Within Sum of Squares and number of clusters - Kmeans')
+```
+
+```{r}
+autoplot(kmeans(df_t, 4), data = df_t, label = TRUE, label.size = 3)
+```
