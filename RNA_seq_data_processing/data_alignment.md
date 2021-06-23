@@ -1,4 +1,4 @@
-# *Streptococcus thermophilus* datasets assembly
+# *Streptococcus thermophilus* - read alignment to reference genome
 
 Pulling Bowtie2:
 ```
@@ -21,7 +21,7 @@ Script used to convert align and convert directly from sam to bam files (mapping
 
 for file in *.gz
 do
-        bamfile=`echo $file | sed 's/.fastq.gz/.bam/g'`
+        bamfile=`echo $file | sed 's/.gz/.bam/g'`
         bowtie2 -x ./../genome_index/sth_index -U $file | samtools view -Sb - > $bamfile
 done
 ```
