@@ -6,7 +6,7 @@
 # fixed_metadata.csv - containing the metadata regarding all the datasets
 
 # Dataset after SARTools:
-setwd("C:\\Users\\teres\\OneDrive - Universidade do Minho\\ST_TRN_data\\1_analysis\\")
+setwd("")                                                                # insert path
 data <- read.delim("ERR4C1vsSRR5CD2.complete.txt", row.names=1)
 metadata <- read.csv("metadata.csv",row.names=1, sep=";")
 dim(data)
