@@ -6,5 +6,6 @@ Repository with the supplementary material developed in the context of the proje
 - Alignment_statistics: Statistics of the alignment produced with samtools flagstat. 
 - Readcount_normalization: readcounts and script used for the normalization step using SARTools. 
 - dataset: contains scripts used to obtain the final dataset and data files. 
+- TRN: Data and code used to infer the Transcription Regulatory Network using the RTN method. 
 
 
