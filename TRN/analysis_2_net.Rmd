@@ -1,0 +1,182 @@
+---
+title: Streptococcus thermophilus - Transcription Regulatory Network inference and
+  visualization
+output:
+  html_document:
+    df_print: paged
+---
+```{r, include = FALSE}
+library(ggplot2)
+library(edgeR)
+library(limma)
+library(readxl)
+library(Glimma)
+library(gplots)
+library(RColorBrewer)
+library(SARTools)
+library(genefilter)
+library(ggdendro)
+library(ggfortify)
+library(dplyr)
+library(RTN)
+library(RedeR)
+```
+
+
+
+```{r import, include=FALSE}
+setwd("C:\\Users\\teres\\OneDrive - Universidade do Minho\\ST_TRN_data\\1_analysis\\TRN\\")
+data <- read.csv("normalized_df.csv", row.names=1)
+meta_data <- read.csv("fixed_metadata.csv", row.names=1)
+transcription_factors <- read.csv2("transcription_factors.csv")
+```
+
+Transcription factors
+```{r}
+tfs = transcription_factors$TF_Locus_tag
+```
+
+```{r}
+length(which(tfs %in% rownames(data)))
+a = which(tfs %in% rownames(data))
+tf0 = tfs[-a]
+```
+
+Transcription factors that are not present in the data:
+```{r}
+transcription_factors[which(transcription_factors$TF_Locus_tag %in% tf0),]
+```
+```{r, include=FALSE}
+mdata = as.matrix(data)
+mdata = scale(mdata)
+```
+
+Using tni constructor:
+```{r}
+rtni <- tni.constructor(expData = mdata, regulatoryElements = tfs)
+```
+
+The function tni.permutation allows to use the TNI object and to return a TRN that is inferred by mutual information (with multiple hypothesis testing corrections).
+```{r}
+rtni <- tni.permutation(rtni, nPermutations = 100)
+```
+
+The boostrap analysis is an additional step that removes unstable interaction. This function (tni.bootstrap) creates a consensus boostrap network.
+```{r}
+rtni <- tni.bootstrap(rtni)
+```
+
+Applying DPI algorithm to reduce the network complexity. 
+```{r}
+rtni <- tni.dpi.filter(rtni)
+```
+
+
+After the DPI filtering step it is possible to obtain a regulon summary.
+The infered TRN contains 42 regulatory elements, 1524 targets(including genes and transcription factors), and 4301 edges. 
+Before the filtering the network included the same number of regulatory elements and targets, but 15576 edges. The filtering removed 11275 edges. 
+```{r}
+tni.regulon.summary(rtni)
+```
+3
+
+All results available in the TNI object can be retrieved using the tni.get function:
+```{r}
+tni.get(rtni, what="summary")
+```
+
+Refnet is a data matrix that contains MI values between target genes and regulators. It contains + and - signs that are atributed to the inferred associations, representing the Pearson correlation between regulators and targets. 
+```{r}
+refnet <- tni.get(rtni, what="refnet")
+```
+
+TNET is also a matrix with MI values that are evaluated using the DPI filter. It also contains + and - signs that are assigned to the inferred associations and that are derived from the Pearson correlation between regulators and targets. 
+```{r}
+tnet <- tni.get(rtni, what="tnet")
+#summary(tnet)
+```
+
+```{r}
+regulons <- tni.get(rtni, what = "regulons.and.mode")
+length(regulons)
+```
+
+
+The inferred transcriptional network can also be retrieved as an igraph object using the "tni.graph" function.
+The igraph object features network attributes that allow the visualization using the RedeR package. 
+```{r}
+g <- tni.graph(rtni)
+```
+
+Network visualization:
+```{r}
+#rdp <- RedPort()
+#calld(rdp)
+#addGraph(rdp, g, layout=NULL)
+#addLegend.color(rdp, g, type="edge")
+#addLegend.shape(rdp, g)
+#relax(rdp, ps = TRUE)
+```
+
+
+```{r}
+regsize = tni.get(rtni, what = "regulonSize")
+regsize = regsize[order(regsize$Size, decreasing = TRUE),]
+```
+
+Top 10n regulons with largest number of regulatory interactions, here denoted by their Size:
+```{r}
+regsize[1:10,]
+```
+
+The regulon with the largest size (more regulatory relations) is STER_RS06360,which is identified as a response regulator transcription factor. No further information was found regarding this regulator. 
+```{r}
+transcription_factors[rownames(regsize[1:10,]),]
+rownames(regsize[1:10,])
+```
+
+
+Heat inducible transcriptional repressor 'hrcA':
+```{r}
+#STER_RS00035
+tni.regulon.summary(rtni, regulatoryElements = "STER_RS00780")
+```
+
+
+```{r}
+regulons <- tni.get(rtni, what = "regulons.and.mode")
+head(regulons$STER_RS00780)
+```
+
+
+
+TF: 'mfd': 
+```{r}
+transcription_factors[which(transcription_factors$TF_Locus_tag == "STER_RS00035"),]
+```
+
+```{r}
+tni.regulon.summary(rtni, regulatoryElements = "STER_RS00035")
+```
+
+CodY: GTP-sensing transcriptional pleiotropic repressor CodY. Responsible for the expression of many genes that are induced as cells make the transition from rapid exponential growth to stationary phase:
+```{r}
+#CodY
+tni.regulon.summary(rtni, regulatoryElements = "STER_RS07850")
+```
+
+```{r}
+transcription_factors[which(transcription_factors$TF_Locus_tag == "STER_RS07850"),]
+tni.regulon.summary(rtni, regulatoryElements = "STER_RS07850")
+```
+
+STER_RS01725 is identified as a regulator with mutual information:
+```{r}
+transcription_factors[which(transcription_factors$TF_Locus_tag == "STER_RS01725"),]
+tni.regulon.summary(rtni, regulatoryElements = "STER_RS01725")
+```
+
+
+```{r}
+save(rtni, file="rtni_st.RData")
+```
